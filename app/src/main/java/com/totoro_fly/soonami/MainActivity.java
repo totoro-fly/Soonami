@@ -1,5 +1,6 @@
 package com.totoro_fly.soonami;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -35,12 +36,14 @@ public class MainActivity extends AppCompatActivity {
     TextView tsunamiAlertTextview;
     @Bind(R.id.activity_main)
     LinearLayout activityMain;
+    ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        progress = new ProgressDialog(this);
         TsunamiAsyncTask task = new TsunamiAsyncTask();
         task.execute();
     }
@@ -68,7 +71,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class TsunamiAsyncTask extends AsyncTask<URL, Void, Event> {
+    private class TsunamiAsyncTask extends AsyncTask<URL, Integer, Event> {
+        @Override
+        protected void onPreExecute() {
+            progress.show();
+            progress.setMessage("刷新中...");
+        }
 
         @Override
         protected Event doInBackground(URL... urls) {
@@ -79,12 +87,14 @@ public class MainActivity extends AppCompatActivity {
             return earthquake;
         }
 
+
         @Override
         protected void onPostExecute(Event event) {
             if (event == null) {
                 return;
             }
             updateUi(event);
+            progress.dismiss();
         }
     }
 
